@@ -5,6 +5,7 @@ import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import React from "react";
 import { useState, useEffect } from "react";
+import { SPELLS, SpellDetail } from "@/lib/spellSheet";
 
 export default function Home() {
   const { theme, setTheme } = useTheme();
@@ -13,7 +14,15 @@ export default function Home() {
   const [isError, setIsError] = useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
-  const spells = ["Spark", "Bolt", "Nova", "Ward", "Barrier", "Bastion"];
+  // Select 6 spells for player deck (3 attacks + 3 defense)
+  const playerDeck: SpellDetail[] = [
+    SPELLS.find((s) => s.id === "a_s")!, // Spark
+    SPELLS.find((s) => s.id === "a_m")!, // Bolt
+    SPELLS.find((s) => s.id === "a_l")!, // Nova
+    SPELLS.find((s) => s.id === "d_s")!, // Ward
+    SPELLS.find((s) => s.id === "d_m")!, // Barrier
+    SPELLS.find((s) => s.id === "d_l")!, // Bastion
+  ];
 
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
@@ -25,8 +34,8 @@ export default function Home() {
       if (key >= 1 && key <= 6) {
         e.preventDefault();
         e.stopPropagation();
-        const spell = spells[key - 1];
-        setTargetSpell(spell);
+        const spell = playerDeck[key - 1];
+        setTargetSpell(spell.text);
         setInputValue("");
         setIsError(false);
         setTimeout(() => inputRef.current?.focus(), 10);
@@ -83,7 +92,7 @@ export default function Home() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="p-6 hover:shadow-xl transition-shadow duration-300">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-xl font-bold">Player A</h3>
+            <h3 className="text-xl font-bold">Player A - Spell Deck</h3>
             <div className="w-32">
               <div className="text-xs text-muted-foreground mb-1 text-right">
                 HP: 100/100
@@ -97,76 +106,36 @@ export default function Home() {
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <Card className="p-3">
-              <div className="flex justify-between items-center">
-                <span className="font-medium">
-                  Spark{" "}
-                  <span className="text-xs text-muted-foreground">(1)</span>
-                </span>
-                <span className="px-2 py-1 bg-red-500 text-white text-xs rounded">
-                  ATK
-                </span>
-              </div>
-            </Card>
-            <Card className="p-3">
-              <div className="flex justify-between items-center">
-                <span className="font-medium">
-                  Bolt{" "}
-                  <span className="text-xs text-muted-foreground">(2)</span>
-                </span>
-                <span className="px-2 py-1 bg-red-500 text-white text-xs rounded">
-                  ATK
-                </span>
-              </div>
-            </Card>
-            <Card className="p-3">
-              <div className="flex justify-between items-center">
-                <span className="font-medium">
-                  Nova{" "}
-                  <span className="text-xs text-muted-foreground">(3)</span>
-                </span>
-                <span className="px-2 py-1 bg-red-500 text-white text-xs rounded">
-                  ATK
-                </span>
-              </div>
-            </Card>
-            <Card className="p-3">
-              <div className="flex justify-between items-center">
-                <span className="font-medium">
-                  Ward{" "}
-                  <span className="text-xs text-muted-foreground">(4)</span>
-                </span>
-                <span className="px-2 py-1 bg-blue-500 text-white text-xs rounded">
-                  DEF
-                </span>
-              </div>
-            </Card>
-            <Card className="p-3">
-              <div className="flex justify-between items-center">
-                <span className="font-medium">
-                  Barrier{" "}
-                  <span className="text-xs text-muted-foreground">(5)</span>
-                </span>
-                <span className="px-2 py-1 bg-blue-500 text-white text-xs rounded">
-                  DEF
-                </span>
-              </div>
-            </Card>
-            <Card className="p-3">
-              <div className="flex justify-between items-center">
-                <span className="font-medium">
-                  Bastion{" "}
-                  <span className="text-xs text-muted-foreground">(6)</span>
-                </span>
-                <span className="px-2 py-1 bg-blue-500 text-white text-xs rounded">
-                  DEF
-                </span>
-              </div>
-            </Card>
+            {playerDeck.map((spell, index) => (
+              <Card key={spell.id} className="p-3">
+                <div className="space-y-1">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium">
+                      {spell.name}{" "}
+                      <span className="text-xs text-muted-foreground">
+                        ({index + 1})
+                      </span>
+                    </span>
+                    <span
+                      className={`px-2 py-1 text-white text-xs rounded ${
+                        spell.kind === "attack" ? "bg-red-500" : "bg-blue-500"
+                      }`}
+                    >
+                      {spell.kind === "attack" ? "ATK" : "DEF"} {spell.power}
+                    </span>
+                  </div>
+                  <div className="text-xs text-muted-foreground italic">
+                    "{spell.text}"
+                  </div>
+                </div>
+              </Card>
+            ))}
           </div>
 
           <div className="mt-6">
-            <label className="block text-sm font-medium mb-2">typing</label>
+            <label className="block text-sm font-medium mb-2">
+              Player A - Spell Input
+            </label>
             <Card
               className={`p-3 w-full transition-all ${isError ? "ring-2 ring-red-500 animate-pulse bg-red-500/10" : ""}`}
             >
@@ -194,7 +163,7 @@ export default function Home() {
         </Card>
 
         <Card className="p-6 hover:shadow-xl transition-shadow duration-300">
-          <h3 className="text-xl font-bold mb-4">Arena</h3>
+          <h3 className="text-xl font-bold mb-4">Battle Arena</h3>
           <div className="space-y-3">
             <Card className="p-4 w-full">
               <div className="space-y-2">
@@ -244,7 +213,7 @@ export default function Home() {
 
         <Card className="p-6 hover:shadow-xl transition-shadow duration-300">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-xl font-bold">Player B (Bot)</h3>
+            <h3 className="text-xl font-bold">Player B (Bot) - Spell Deck</h3>
             <div className="w-32">
               <div className="text-xs text-muted-foreground mb-1 text-right">
                 HP: 100/100
@@ -258,63 +227,37 @@ export default function Home() {
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <Card className="p-3">
-              <div className="flex justify-between items-center">
-                <span className="font-medium">Spark</span>
-                <span className="px-2 py-1 bg-red-500 text-white text-xs rounded">
-                  ATK
-                </span>
-              </div>
-            </Card>
-            <Card className="p-3">
-              <div className="flex justify-between items-center">
-                <span className="font-medium">Bolt</span>
-                <span className="px-2 py-1 bg-red-500 text-white text-xs rounded">
-                  ATK
-                </span>
-              </div>
-            </Card>
-            <Card className="p-3">
-              <div className="flex justify-between items-center">
-                <span className="font-medium">Nova</span>
-                <span className="px-2 py-1 bg-red-500 text-white text-xs rounded">
-                  ATK
-                </span>
-              </div>
-            </Card>
-            <Card className="p-3">
-              <div className="flex justify-between items-center">
-                <span className="font-medium">Ward</span>
-                <span className="px-2 py-1 bg-blue-500 text-white text-xs rounded">
-                  DEF
-                </span>
-              </div>
-            </Card>
-            <Card className="p-3">
-              <div className="flex justify-between items-center">
-                <span className="font-medium">Barrier</span>
-                <span className="px-2 py-1 bg-blue-500 text-white text-xs rounded">
-                  DEF
-                </span>
-              </div>
-            </Card>
-            <Card className="p-3">
-              <div className="flex justify-between items-center">
-                <span className="font-medium">Bastion</span>
-                <span className="px-2 py-1 bg-blue-500 text-white text-xs rounded">
-                  DEF
-                </span>
-              </div>
-            </Card>
+            {playerDeck.map((spell, index) => (
+              <Card key={`bot-${spell.id}`} className="p-3">
+                <div className="space-y-1">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium">{spell.name}</span>
+                    <span
+                      className={`px-2 py-1 text-white text-xs rounded ${
+                        spell.kind === "attack" ? "bg-red-500" : "bg-blue-500"
+                      }`}
+                    >
+                      {spell.kind === "attack" ? "ATK" : "DEF"} {spell.power}
+                    </span>
+                  </div>
+                  <div className="text-xs text-muted-foreground italic">
+                    "{spell.text}"
+                  </div>
+                </div>
+              </Card>
+            ))}
           </div>
 
           <div className="mt-6">
-            <label className="block text-sm font-medium mb-2">typing</label>
+            <label className="block text-sm font-medium mb-2">
+              Player B (Bot) - Spell Output
+            </label>
             <Card className="p-3 w-full">
               <input
                 type="text"
                 className="w-full bg-transparent outline-none"
-                placeholder="Type here..."
+                placeholder="Bot's spell will appear here..."
+                disabled
               />
             </Card>
           </div>
